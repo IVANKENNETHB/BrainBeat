@@ -1,0 +1,20 @@
+{
+  "name": "brainbeat",
+  "private": true,
+  "version": "1.0.0",
+  "description": "BrainBeat.so - a general purpose quiz platform for cybersecurity training (Tauri + Rust + SQLite)",
+  "scripts": {
+    "tauri": "tauri",
+    "dev": "tauri dev",
+    "build": "tauri build",
+    "test": "node tests/logic.test.js",
+    "test:browser": "node tests/browser-smoke.js"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.12.2"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.12.3",
+    "@tauri-apps/plugin-dialog": "^2.8.2"
+  }
+}

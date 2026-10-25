@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="BrainBeat - a multiple choice and scramble practice quiz." />
+  <meta name="theme-color" content="#041021" />
+  <title>BrainBeat</title>
+  <link rel="icon" href="assets/icon.png" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<!-- auth-mode: the sign-in screen is the first thing painted, so the app
+     header stays hidden until the user is signed in. -->
+<body class="auth-mode">
+  <audio id="bgm" src="assets/music/a-like-supreme.mp3" loop preload="metadata"></audio>
+  <div class="app-shell">
+    <header class="app-header">
+      <img class="app-logo" src="assets/icon.png" alt="Cybersecurity Quiz Bee logo" />
+      <div class="app-brand">
+        <h1 class="app-title">BrainBeat</h1>
+        <p class="app-tagline">Practice set &middot; Multiple choice &amp; scramble</p>
+           <p class="app-tagline">Developed By: IVAN KENNETH BAUTISTA<a href="https://github.com/USERNAME" class="github-link" target="_blank" rel="noopener noreferrer" aria-label="Source code on GitHub">· GitHub</a></p>
+        
+      </div>
+<button type="button" class="icon-btn" id="settings-open" data-action="open-settings"
+        aria-label="Open settings" title="Settings">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+          stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="3.2" />
+          <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09A1.7 1.7 0 0 0 9 19.4a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06-.06A1.7 1.7 0 0 0 19.4 9v.09a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1z" />
+        </svg>
+      </button>
+      <button type="button" class="icon-btn" id="recycle-bin-open" data-action="open-recycle-bin"
+        aria-label="Open recycle bin" title="Recycle bin">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+          stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M3 6h18" />
+          <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+          <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+          <path d="M10 11v6" />
+          <path d="M14 11v6" />
+        </svg>
+      </button>
+    </header>
+
+    <main id="screen-container">
+      <!-- ============================ HOME ============================ -->
+      <section class="screen" id="screen-home" data-screen="home" hidden>
+        <div class="home-hero" role="img" aria-label="Byte Builders animated banner">
+          <div class="home-hero-art" aria-hidden="true">
+            <img src="assets/byte_builders_wide.gif" alt="" />
+          </div>
+          <div class="home-hero-overlay">
+            <h2 class="home-hero-title">BrainBeat</h2>
+            <p class="home-hero-sub">Multiple choice &amp; scramble &middot; </p>
+             
+          </div>
+        </div>
+        <div class="home-grid">
+          <div class="panel setup-panel">
+            <h2>Test Setup</h2>
+
+            <div class="setup-fields">
+              <div class="field">
+                <span class="field-label">Mode</span>
+                <div class="option-group" id="mode-group">
+                  <label class="option-chip">
+                    <input type="radio" name="mode" value="practice" checked />
+                    <span>Practice</span>
+                  </label>
+                  <label class="option-chip">
+                    <input type="radio" name="mode" value="quizmaster" />
+                    <span>Actual Test</span>
+                  </label>
+                </div>
+                <p class="field-help" id="mode-help">Practice is Prepare yourself and review your knowledge. Actual test goes to a Test lobby where you add your name before Take your official assessment..</p>
+              </div>
+
+              <div class="field">
+                <span class="field-label">Number of questions</span>
+                <div class="option-group" id="count-group"></div>
+                <p class="field-help" id="count-help">The number of questions available depends on the level you picked.</p>
+              </div>
+
+              <div class="field field-wide">
+                <span class="field-label">Level</span>
+                <div class="option-group" id="level-group">
+                  <label class="option-chip">
+                    <input type="radio" name="level" value="easy" />
+                    <span>Easy</span>
+                  </label>
+                  <label class="option-chip">
+                    <input type="radio" name="level" value="normal" checked />
+                    <span>Normal</span>
+                  </label>
+                  <label class="option-chip">
+                    <input type="radio" name="level" value="hard" />
+                    <span>Hard</span>
+                  </label>
+                  <label class="option-chip">
+                    <input type="radio" name="level" value="expert" />
+                    <span>Expert</span>
+                  </label>
+                </div>
+                <p class="field-help" id="level-help">Normal level: multiple choice and a few scramble questions.</p>
+              </div>
+
+              <div class="field">
+                <span class="field-label">Question order</span>
+                <div class="option-group">
+                  <label class="option-chip">
+                    <input type="radio" name="order" value="random" checked />
+                    <span>Randomized</span>
+                  </label>
+                  <label class="option-chip">
+                    <input type="radio" name="order" value="original" />
+                    <span>Original order</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="field">
+                <span class="field-label">Timer per question</span>
+                <div class="option-group">
+                  <label class="option-chip">
+                    <input type="radio" name="timer" value="0" checked />
+                    <span>Off</span>
+                  </label>
+                  <label class="option-chip">
+                    <input type="radio" name="timer" value="15" />
+                    <span>15s</span>
+                  </label>
+                  <label class="option-chip">
+                    <input type="radio" name="timer" value="30" />
+                    <span>30s</span>
+                  </label>
+                  <label class="option-chip">
+                    <input type="radio" name="timer" value="60" />
+                    <span>60s</span>
+                  </label>
+                  <label class="option-chip">
+                    <input type="radio" name="timer" value="120" />
+                    <span>2 min</span>
+                  </label>
+                  <label class="option-chip">
+                    <input type="radio" name="timer" value="180" />
+                    <span>3 min</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <button type="button" class="btn btn-primary btn-large" id="start-btn" data-action="start">Start Test</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================ LOBBY ============================ -->
+      <section class="screen" id="screen-lobby" data-screen="lobby" hidden>
+        <div class="lobby-grid">
+          <div class="panel teams-panel" id="teams-panel">
+            <h2>Teams <span class="level-badge" id="lobby-level-badge">Normal level</span></h2>
+            <p class="hint">Add one or more teams before starting the test. Every level keeps its own teams and leaderboard.</p>
+            <div class="team-input-row">
+              <input type="text" id="team-name-input" placeholder="Team name" maxlength="24" autocomplete="off" />
+              <button type="button" class="btn" data-action="add-team">Add</button>
+            </div>
+            <p class="team-error" id="team-error" hidden></p>
+            <ul class="team-list" id="team-list"></ul>
+          </div>
+
+          <aside class="panel lobby-side">
+            <button type="button" class="btn" id="lobby-leaderboard-btn" data-action="open-leaderboard">Leaderboard</button>
+            <div class="modal-overlay" id="lobby-leaderboard-modal" hidden>
+              <div class="modal" role="dialog" aria-modal="true" aria-labelledby="lobby-leaderboard-title">
+                <h3 class="modal-title" id="lobby-leaderboard-title">Leaderboard</h3>
+                <ul class="score-list" id="lobby-leaderboard-list"></ul>
+                <div class="modal-actions">
+                  <button type="button" class="btn" id="lobby-leaderboard-close">Close</button>
+                </div>
+              </div>
+            </div>
+            <div class="award-panel" id="lobby-award-panel">
+              <label for="lobby-award-team">Answering team</label>
+              <select id="lobby-award-team"></select>
+              <p class="hint">Choose the team that will answer the quiz. Scores are kept as each team's best result.</p>
+            </div>
+            <p class="hint" id="lobby-start-hint">Add at least one team to start.</p>
+            <div class="lobby-actions">
+              <button type="button" class="btn btn-primary btn-large" id="lobby-start-btn" data-action="start" disabled>Start Test</button>
+              <button type="button" class="btn btn-large" data-action="home">Back to Setup</button>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- ============================ QUIZ ============================ -->
+      <section class="screen" id="screen-Test" data-screen="Test" hidden>
+        <div class="countdown" id="countdown" tabindex="-1" hidden>
+          <div class="countdown-box">
+            <span class="countdown-label">Get ready</span>
+            <span class="countdown-value" id="countdown-value">3</span>
+          </div>
+        </div>
+
+        <div class="test-layout">
+          <div class="test-main">
+            <div class="test-statusbar">
+              <span class="type-badge" id="type-badge">Multiple Choice</span>
+              <div class="status-chip">
+                <span class="status-label">Question</span>
+                <span id="progress-text">1 / 40</span>
+              </div>
+              <div class="status-chip">
+                <span class="status-label" id="score-label">Score</span>
+                <span id="score-text">0</span>
+              </div>
+              <div class="status-chip timer-chip" id="timer-chip" hidden>
+                <span class="status-label">Time</span>
+                <span id="timer-text">0:00</span>
+              </div>
+              <div class="status-chip" id="answering-chip" hidden>
+                <span class="status-label">Answering</span>
+                <span id="answering-team-text">—</span>
+              </div>
+            </div>
+
+            <div class="progress-track" id="progress-track" role="progressbar" aria-label="test progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+              <span class="progress-fill" id="progress-fill"></span>
+            </div>
+
+            <article class="question-card" id="question-card">
+              <h2 class="question-text" id="question-text" tabindex="-1"></h2>
+              <div id="answer-area" class="answer-area"></div>
+              <div class="feedback" id="feedback" role="status" aria-live="polite" hidden></div>
+              <p class="answer-hint" id="answer-hint" hidden></p>
+            </article>
+
+            <div class="test-controls">
+              <button type="button" class="btn btn-danger-outline" id="end-btn" data-action="end">End test</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================== RESULTS ========================== -->
+      <section class="screen" id="screen-results" data-screen="results" hidden>
+        <div class="panel results-card">
+          <h2 id="results-title" tabindex="-1">test Complete</h2>
+          <div class="results-summary" id="results-summary"></div>
+          <div class="results-actions">
+            <button type="button" class="btn btn-primary" data-action="play-again">Play Again</button>
+            <button type="button" class="btn" id="retry-incorrect-btn" data-action="retry-incorrect" hidden>Retry Incorrect Only</button>
+            <button type="button" class="btn" data-action="home">Back to Setup</button>
+          </div>
+          <div class="review-toolbar">
+            <p class="hint" id="review-hint">The correct answers are hidden. Enter the admin password to reveal them.</p>
+            <div class="review-toolbar-actions">
+              <button type="button" class="btn" id="reveal-answers-btn" data-action="reveal-answers">Reveal answers</button>
+              <button type="button" class="btn" id="hide-answers-btn" data-action="hide-answers" hidden>Hide answers</button>
+            </div>
+          </div>
+          <div class="review-filter" id="review-filter" role="group" aria-label="Filter answer review"></div>
+          <div class="review" id="review-list"></div>
+        </div>
+      </section>
+
+      <!-- ========================== SETTINGS ========================== -->
+      <section class="screen" id="screen-settings" data-screen="settings" hidden>
+        <div class="panel settings-panel">
+          <h2 id="settings-title" tabindex="-1">Settings</h2>
+          <p class="hint">Audio and answer options. Changes are saved automatically.</p>
+            <p class="hint">Audio and answer options. Changes are saved automatically.</p>
+
+          <div class="settings-group">
+            <h3>Sound</h3>
+
+            <label class="toggle-row">
+              <input type="checkbox" id="sound-toggle" checked />
+              <span>Sound effects</span>
+            </label>
+
+            <label class="toggle-row">
+              <input type="checkbox" id="bgm-toggle" checked />
+              <span>Background music</span>
+            </label>
+
+            <div class="field" id="bgm-volume-field">
+              <span class="field-label" id="bgm-volume-label">Music volume</span>
+              <div class="slider-row">
+                <input type="range" id="bgm-volume" min="0" max="100" step="1" value="80"
+                  aria-labelledby="bgm-volume-label" />
+                <span class="slider-value" id="bgm-volume-value">80%</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-group">
+            <h3>Questions</h3>
+
+            <label class="toggle-row">
+              <input type="checkbox" id="shuffle-choices" />
+              <span>Shuffle answer choices</span>
+            </label>
+          </div>
+
+          <div class="settings-group">
+            <h3>Display</h3>
+
+            <div class="settings-buttons">
+              <button type="button" class="btn" id="fullscreen-btn" data-action="fullscreen">Fullscreen</button>
+              <button type="button" class="btn" id="exit-fullscreen-btn" data-action="exit-fullscreen">Exit fullscreen</button>
+            </div>
+            <p class="hint" id="fullscreen-hint">The window is not fullscreen. Press F11 to toggle it.</p>
+          </div>
+
+          <div class="settings-group">
+            <h3>Question Bank</h3>
+            <ul class="bank-stats">
+              <li><span>Total questions</span><strong id="bank-total">0</strong></li>
+              <li><span>Multiple choice</span><strong id="bank-mc">0</strong></li>
+              <li><span>Scramble</span><strong id="bank-id">0</strong></li>
+            </ul>
+            <p class="hint">Questions are drawn at random with no duplicates. The original question bank is never modified.</p>
+          </div>
+
+          <div class="settings-group">
+            <h3>Import questions</h3>
+            <p class="hint">Add questions from a <strong>.json</strong>, <strong>.csv</strong> or <strong>.txt</strong> file. Imported questions are saved in this browser and added on top of the built-in bank.</p>
+            <input type="file" id="import-file" accept=".json,.csv,.txt,application/json,text/csv,text/plain" hidden />
+            <div class="import-buttons">
+              <button type="button" class="btn btn-primary" data-action="import-file">Choose File</button>
+              <button type="button" class="btn" data-action="download-template">Download Template</button>
+              <button type="button" class="btn btn-danger-outline" data-action="clear-imported">Clear Imported</button>
+            </div>
+            <p class="import-status" id="import-status" hidden></p>
+          </div>
+
+          <div class="settings-actions">
+            <button type="button" class="btn btn-primary" data-action="close-settings">Back</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================ LOGIN / REGISTER ============================ -->
+      <section class="screen" id="screen-login" data-screen="login">
+        <div class="auth-layout">
+          <div class="panel auth-panel">
+            <h2>Log in</h2>
+            <p class="hint">Welcome back.Log in to continue</p>
+
+            <div class="field">
+              <label class="field-label" for="login-username">Username</label>
+              <input type="text" id="login-username" autocomplete="username" maxlength="64" />
+            </div>
+
+            <div class="field">
+              <label class="field-label" for="login-password">Password</label>
+              <input type="password" id="login-password" autocomplete="current-password" />
+            </div>
+
+            <button type="button" class="btn btn-primary btn-large" id="login-submit" data-action="login" disabled>Log in</button>
+            <p class="auth-error" id="login-error" hidden></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-register" data-screen="register" hidden>
+        <div class="auth-layout">
+          <div class="panel auth-panel">
+            <h2>Create account</h2>
+            <p class="hint">This is the first launch, so create the admin account for this install.</p>
+            <p class="hint">The example values are already filled in — edit them to use your own. Passwords need at least 6 characters.</p>
+
+            <div class="field">
+              <label class="field-label" for="register-username">Username</label>
+              <input type="text" id="register-username" autocomplete="username" maxlength="64" />
+            </div>
+
+            <div class="field">
+              <label class="field-label" for="register-password">Password</label>
+              <input type="password" id="register-password" autocomplete="new-password" />
+            </div>
+
+            <div class="field">
+              <label class="field-label" for="register-confirm-password">Confirm password</label>
+              <input type="password" id="register-confirm-password" autocomplete="new-password" />
+            </div>
+
+            <button type="button" class="btn btn-primary btn-large" data-action="register">Register</button>
+            <p class="auth-error" id="register-error" hidden></p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal-overlay" id="confirm-modal" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-message">
+      <h3 class="modal-title" id="confirm-title">Are you sure?</h3>
+      <p class="modal-message" id="confirm-message"></p>
+      <div class="modal-actions">
+        <button type="button" class="btn" id="confirm-cancel">Cancel</button>
+        <button type="button" class="btn btn-primary" id="confirm-ok">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="recycle-bin-modal" hidden>
+    <div class="modal recycle-bin-modal" role="dialog" aria-modal="true" aria-labelledby="recycle-bin-title" aria-describedby="recycle-bin-message">
+      <h3 class="modal-title" id="recycle-bin-title">Recycle Bin</h3>
+      <p class="modal-message" id="recycle-bin-message">Deleted teams are kept for 30 days before automatic purge.</p>
+      <div class="modal-actions">
+        <button type="button" class="btn" id="recycle-bin-close">Close</button>
+        <button type="button" class="btn btn-warn" id="recycle-bin-purge">Purge Expired</button>
+      </div>
+      <ul class="score-list" id="recycle-bin-list"></ul>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="template-modal" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="template-title" aria-describedby="template-message">
+      <h3 class="modal-title" id="template-title">Download Template</h3>
+      <p class="modal-message" id="template-message">Choose how you want to save the question template CSV file.</p>
+      <div class="modal-actions template-actions">
+        <button type="button" class="btn" data-action="template-cancel">Cancel</button>
+        <button type="button" class="btn" data-action="template-open">Open</button>
+        <button type="button" class="btn" data-action="template-save-as">Save As</button>
+        <button type="button" class="btn btn-primary" data-action="template-save">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="reveal-modal" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="reveal-title">
+      <h3 class="modal-title" id="reveal-title">Reveal the answers</h3>
+      <p class="modal-message">The answer review is locked. Enter the admin password to show the correct answers.</p>
+      <div class="field">
+        <label class="field-label" for="reveal-password">Admin password</label>
+        <input type="password" id="reveal-password" autocomplete="current-password" />
+      </div>
+      <p class="auth-error" id="reveal-error" hidden></p>
+      <div class="modal-actions">
+        <button type="button" class="btn" id="reveal-cancel">Cancel</button>
+        <button type="button" class="btn btn-primary" id="reveal-confirm">Reveal</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loaded in dependency order: data, helpers, models, controller. -->
+  <script src="js/utils.js"></script>
+  <script src="js/question.js"></script>
+  <script src="js/levels.js"></script>
+  <script src="js/importer.js"></script>
+  <script src="js/quiz.js"></script>
+  <script src="js/timer.js"></script>
+  <script src="js/team.js"></script>
+  <script src="js/scoreboard.js"></script>
+  <script src="js/sound.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

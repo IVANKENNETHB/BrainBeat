@@ -1,0 +1,14 @@
+node_modules/
+.git/
+.DS_Store
+dist/
+build/
+out/
+*.log
+
+src-tauri/target/
+node_modules/
+dist/
+build/
+out/
+*.log

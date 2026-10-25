@@ -1,0 +1,2023 @@
+/* ==========================================================================
+   BrainBeat.so - Styles
+   Dark "cyber" theme with a responsive layout. Mobile-first, using CSS
+   custom properties for consistent colour and spacing.
+   ========================================================================== */
+
+:root {
+  color-scheme: dark;
+  --bg: #041021;
+  --bg-elevated: #051531;
+  --panel: #0a2148;
+  --panel-2: #0d244c;
+  --border: #1e3f6b;
+  --text: #f2f8ff;
+  --muted: #a9c7e8;
+  --accent: #6fb0e8;
+  --accent-dark: #4c92d6;
+  --primary: #2f5e98;
+  --success: #22c55e;
+  --danger: #ef4444;
+  --warn: #f59e0b;
+  --radius: 14px;
+  --radius-sm: 9px;
+  --shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+  --max-width: 1800px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  max-width: none;
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(1200px 600px at 15% -10%, rgba(76, 146, 214, 0.22), transparent 60%),
+    radial-gradient(900px 500px at 100% 0%, rgba(47, 94, 152, 0.24), transparent 55%),
+    repeating-linear-gradient(90deg, transparent 0 79px, rgba(111, 176, 232, 0.03) 80px),
+    var(--bg);
+  color: var(--text);
+  font-family: "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0 0 0.5rem;
+  line-height: 1.25;
+}
+
+h2 {
+  font-size: 1.3rem;
+}
+
+h3 {
+  font-size: 1.05rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+p {
+  margin: 0 0 0.5rem;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* ============================ Layout shell ============================ */
+
+/* The shell fills the whole window and is only capped on ultrawide screens. */
+.app-shell {
+  width: 100%;
+  max-width: var(--max-width);
+  margin-inline: auto;
+  padding: 0.7rem 24px 2.5rem;
+}
+
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.6rem 0.9rem;
+  margin-bottom: 1.1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: rgba(8, 24, 51, 0.82);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.35);
+}
+
+.app-logo {
+  flex: 0 0 auto;
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+  border-radius: 50%;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.45));
+}
+
+.app-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.app-title {
+  font-size: clamp(1.15rem, 2.4vw, 1.5rem);
+  letter-spacing: 0.02em;
+  margin: 0;
+  color: #d6e8fb;
+}
+
+/* Gradient text only where background-clip is supported, so the title is
+   never invisible on browsers that ignore it. */
+@supports (-webkit-background-clip: text) or (background-clip: text) {
+  .app-title {
+    background: linear-gradient(100deg, #cfe4fa, #6fb0e8 55%, #f2f8ff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
+
+.app-tagline {
+  color: var(--muted);
+  font-size: 0.82rem;
+  margin: 0;
+}
+
+.github-link {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.78rem;
+  margin-left: 0.4rem;
+  opacity: 0.75;
+  transition: opacity 0.15s ease, color 0.15s ease;
+}
+
+.github-link:hover {
+  color: var(--accent);
+  opacity: 1;
+  text-decoration: underline;
+}
+
+.icon-btn {
+  flex: 0 0 auto;
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--panel-2);
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, filter 0.15s ease, transform 0.06s ease;
+}
+
+.icon-btn:hover {
+  color: var(--text);
+  border-color: var(--accent);
+  filter: brightness(1.12);
+}
+
+.icon-btn:active {
+  transform: translateY(1px);
+}
+
+.icon-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ============================ Panels ============================ */
+
+.panel {
+  background: linear-gradient(145deg, rgba(13, 36, 76, 0.96), rgba(5, 21, 49, 0.98));
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.35rem;
+  box-shadow: var(--shadow), inset 0 1px rgba(196, 223, 250, 0.05);
+}
+
+.panel h2 {
+  color: #d8e9fc;
+}
+
+.home-hero {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  /* The artwork is 16:9 but the banner is a much wider band, so the sides
+     are filled with a soft glow, a brighter circuit grid, and a few glowing
+     "node" points flanking the badge. That way the artwork no longer looks
+     like a box floating in empty space. */
+  background:
+    radial-gradient(2.5px 2.5px at 9% 32%, rgba(223, 238, 253, 0.95), transparent 70%),
+    radial-gradient(2.5px 2.5px at 15% 64%, rgba(223, 238, 253, 0.75), transparent 70%),
+    radial-gradient(2.5px 2.5px at 6% 70%, rgba(223, 238, 253, 0.6), transparent 70%),
+    radial-gradient(2.5px 2.5px at 91% 30%, rgba(223, 238, 253, 0.95), transparent 70%),
+    radial-gradient(2.5px 2.5px at 85% 63%, rgba(223, 238, 253, 0.75), transparent 70%),
+    radial-gradient(2.5px 2.5px at 94% 68%, rgba(223, 238, 253, 0.6), transparent 70%),
+    radial-gradient(360px 280px at 10% 50%, rgba(76, 146, 214, 0.26), transparent 65%),
+    radial-gradient(360px 280px at 90% 50%, rgba(76, 146, 214, 0.26), transparent 65%),
+    radial-gradient(520px 260px at 50% 50%, rgba(76, 146, 214, 0.30), transparent 70%),
+    radial-gradient(1100px 380px at 50% 50%, rgba(47, 94, 152, 0.30), transparent 75%),
+    repeating-linear-gradient(90deg, transparent 0 59px, rgba(111, 176, 232, 0.08) 60px),
+    repeating-linear-gradient(0deg, transparent 0 59px, rgba(111, 176, 232, 0.08) 60px),
+    var(--bg-elevated);
+  height: clamp(280px, 26vw, 420px);
+}
+
+/* The banner backdrop: the artwork's own edges extended outwards, so the
+   artwork sits flush inside the band instead of floating in a box. The
+   animated GIF stays on top, centred, and keeps animating. */
+.home-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: url("../assets/banner_wide.png") center / cover no-repeat;
+}
+
+/* The whole artwork, never cropped. A wider fade (22% each side instead of
+   9%) melts the artwork's edges into the banner so there is no visible seam. */
+.home-hero-art {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.home-hero-art img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* The animation is already extended to the band, so it covers the banner
+     edge to edge instead of floating in the middle of it. */
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Light scrim: only the text corner and the bottom edge get darkened, so the
+   badge stays bright and centred. */
+.home-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(180deg, rgba(4, 16, 33, 0) 0%, rgba(4, 16, 33, 0) 55%, rgba(4, 16, 33, 0.6) 100%),
+    linear-gradient(90deg, rgba(4, 16, 33, 0.7) 0%, rgba(4, 16, 33, 0.3) 22%, rgba(4, 16, 33, 0) 40%);
+}
+
+.home-hero-overlay {
+  position: absolute;
+  inset: auto 0 0 0;
+  z-index: 2;
+  padding: 1rem 1.3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.home-hero-title {
+  margin: 0;
+  font-size: clamp(1.25rem, 3vw, 1.9rem);
+  letter-spacing: 0.02em;
+  color: #eaf4ff;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.75);
+}
+
+.home-hero-sub {
+  margin: 0;
+  color: #bcd8f5;
+  font-size: clamp(0.8rem, 1.4vw, 0.95rem);
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.75);
+}
+
+/* Phones: shorter banner, and the text is centred under the badge instead of
+   sitting on top of it. */
+@media (max-width: 750px) {
+  .home-hero {
+   height: clamp(650px, 38vw, 680px);
+  }
+
+  .home-hero-art {
+    height: 78%;
+    align-self: flex-start;
+  }
+
+  /* The band is portrait on phones, so the wide backdrop would be cropped
+     into a zoomed slice. The artwork already fills the width here, so the
+     backdrop stays off and the gradient fills the band instead. */
+  .home-hero::before {
+    display: none;
+  }
+
+  .home-hero-overlay {
+    align-items: center;
+    text-align: center;
+  }
+
+  .home-hero::after {
+    background: linear-gradient(180deg, rgba(4, 16, 33, 0) 50%, rgba(4, 16, 33, 0.7) 100%);
+  }
+}
+.home-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (min-width: 900px) {
+  .home-grid {
+    grid-template-columns: 1.35fr 1fr;
+    align-items: start;
+  }
+
+  /* The Question Bank lives in Settings now, so Quiz Setup takes the
+     full width of the home grid. */
+  .setup-panel {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+}
+
+/* The option groups inside Quiz Setup sit in two columns: Mode beside the
+   question count, the level and answer choices on full rows, then order
+   beside the timer. */
+.setup-fields {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0 24px;
+}
+
+@media (min-width: 900px) {
+  .setup-fields {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .setup-fields .field-wide {
+    grid-column: 1 / -1;
+  }
+}
+
+/* ============================ Lobby ============================ */
+
+.lobby-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.1rem;
+  align-items: start;
+}
+
+@media (min-width: 900px) {
+  .lobby-grid {
+    grid-template-columns: 1.35fr 1fr;
+    align-items: start;
+  }
+}
+
+.lobby-side {
+  display: flex;
+  flex-direction: column;
+}
+
+.lobby-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-top: 0.9rem;
+}
+
+.lobby-actions .btn {
+  width: 100%;
+}
+
+@media (max-width: 600px) {
+  .app-header {
+    padding: 0.5rem 0.65rem;
+  }
+
+  .app-tagline {
+    font-size: 0.76rem;
+  }
+}
+
+.hint {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.field-help {
+  color: var(--muted);
+  font-size: 0.82rem;
+  margin: 0.5rem 0 0;
+}
+
+/* ============================ Fields / options ============================ */
+
+.field {
+  min-width: 0;
+  margin-bottom: 0.8rem;
+}
+
+.field-label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-size: 0.85rem;
+  color: #aecdec;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.option-group {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.option-chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.48rem 0.72rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--panel-2);
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.05s ease;
+}
+
+.option-chip input {
+  accent-color: var(--accent);
+  margin: 0;
+}
+
+.option-chip:hover {
+  border-color: var(--accent);
+}
+
+.option-chip:has(input:checked) {
+  border-color: var(--accent);
+  background: rgba(111, 176, 232, 0.16);
+}
+
+.option-chip:has(input:checked) span {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.option-chip:has(input:focus-visible) {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0.5rem 0 1.1rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.toggle-row input {
+  accent-color: var(--accent);
+  width: 1.05rem;
+  height: 1.05rem;
+}
+
+.toggle-row-setup {
+  margin: 0.45rem 0 0;
+}
+
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.slider-row input[type="range"] {
+  flex: 1;
+  min-width: 0;
+  height: 1.15rem;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.slider-value {
+  flex: 0 0 auto;
+  min-width: 2.8rem;
+  text-align: right;
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+
+/* ============================ Buttons ============================ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.05rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--panel-2);
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: transform 0.06s ease, filter 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+}
+
+.btn:hover:not(:disabled) {
+  filter: brightness(1.12);
+  border-color: var(--accent);
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn:focus-visible,
+.option-btn:focus-visible,
+.answer-input:focus-visible,
+select:focus-visible,
+input[type="text"]:focus-visible,
+input[type="password"]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #6e8db0;
+  opacity: 1;
+}
+
+.btn-primary {
+  background: linear-gradient(180deg, #37699f, #20436f);
+  border-color: #5c96cf;
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.16);
+}
+
+.btn-accent {
+  background: linear-gradient(180deg, var(--accent), var(--accent-dark));
+  border-color: transparent;
+  color: #05203a;
+}
+
+.btn-success {
+  background: linear-gradient(180deg, var(--success), #15803d);
+  border-color: transparent;
+  color: #04240f;
+}
+
+.btn-warn {
+  background: linear-gradient(180deg, var(--warn), #b45309);
+  border-color: transparent;
+  color: #2a1600;
+}
+
+.btn-danger-outline {
+  background: transparent;
+  border-color: rgba(239, 68, 68, 0.6);
+  color: #fca5a5;
+}
+
+.btn-large {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  font-size: 1rem;
+  margin-top: 0.25rem;
+}
+
+#start-btn {
+  width: auto;
+  max-width: 250px;
+  display: block;
+  margin: 0.25rem auto 0;
+}
+
+.btn-tiny {
+  padding: 0.4rem 0.75rem;
+  font-size: 0.78rem;
+  border-radius: 999px;
+  min-height: 34px;
+}
+
+/* ============================ Teams ============================ */
+
+.team-input-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+  max-width: 440px;
+}
+
+.team-input-row input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+
+.team-error {
+  color: #fca5a5;
+  font-size: 0.82rem;
+  margin: 0 0 0.5rem;
+}
+
+.team-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.team-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  font-size: 0.9rem;
+}
+
+.team-empty {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+/* ============================ Bank stats ============================ */
+
+.bank-stats {
+  list-style: none;
+  margin: 0 0 0.9rem;
+  padding: 0;
+}
+
+.bank-stats li {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.45rem 0;
+  border-bottom: 1px dashed var(--border);
+  font-size: 0.9rem;
+}
+
+.bank-stats li:last-child {
+  border-bottom: none;
+}
+
+.bank-stats strong {
+  color: var(--accent);
+}
+
+/* ============================ Import tools ============================ */
+
+.import-tools {
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1px dashed var(--border);
+}
+
+.import-tools .field-label {
+  margin-bottom: 0.35rem;
+}
+
+.import-tools .hint {
+  margin-bottom: 0.7rem;
+}
+
+.import-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.import-status {
+  margin: 0.7rem 0 0;
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+  font-size: 0.85rem;
+}
+
+.import-status.success {
+  border-color: rgba(34, 197, 94, 0.55);
+  background: rgba(34, 197, 94, 0.1);
+  color: #bbf7d0;
+}
+
+.import-status.error {
+  border-color: rgba(239, 68, 68, 0.55);
+  background: rgba(239, 68, 68, 0.1);
+  color: #fecaca;
+}
+
+/* ============================ Quiz screen ============================ */
+
+.test-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 900px) {
+  .test-layout {
+    grid-template-columns: minmax(0, 2.1fr) minmax(230px, 1fr);
+    align-items: start;
+  }
+
+  /* The leaderboard now lives in the lobby, so the quiz always uses a single
+     full-width column. */
+  #screen-Test.solo .test-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #screen-Test.solo .test-main {
+    max-width: none;
+  }
+}
+
+.test-main {
+  min-width: 0;
+}
+
+.test-statusbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0.85rem;
+  margin-bottom: 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--panel);
+  box-shadow: inset 0 1px rgba(196, 223, 250, 0.05);
+}
+
+.test-statusbar .type-badge {
+  margin-bottom: 0;
+}
+
+.test-statusbar .btn {
+  margin-left: auto;
+}
+
+.status-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  padding: 0.22rem 0.65rem;
+  border-radius: 999px;
+  background: rgba(13, 36, 76, 0.9);
+  font-size: 0.9rem;
+}
+
+.status-label {
+  color: var(--muted);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.timer-chip {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: #dceafc;
+}
+
+.timer-chip.warning {
+  background: rgba(239, 68, 68, 0.18);
+  color: #fecaca;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  50% {
+    background: rgba(239, 68, 68, 0.18);
+  }
+}
+
+/* Thin progress bar under the status chips */
+
+.progress-track {
+  position: relative;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+.progress-fill {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent-dark), var(--accent));
+  box-shadow: 0 0 12px rgba(111, 176, 232, 0.5);
+  transition: width 0.35s ease;
+}
+
+/* Question entrance animation (restarted per question in JS) */
+
+.question-card.question-enter {
+  animation: card-in 0.32s ease both;
+}
+
+@keyframes card-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* "Get ready" countdown overlay */
+
+.countdown {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(4, 16, 33, 0.82);
+  backdrop-filter: blur(3px);
+}
+
+.countdown:focus {
+  outline: none;
+}
+
+.countdown-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 1.6rem 3rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, var(--panel), var(--bg-elevated));
+  box-shadow: var(--shadow), 0 0 40px rgba(76, 146, 214, 0.25);
+}
+
+.countdown-label {
+  font-size: 0.8rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.countdown-value {
+  font-size: clamp(3.5rem, 12vw, 6rem);
+  font-weight: 800;
+  line-height: 1;
+  color: var(--accent);
+  text-shadow: 0 0 26px rgba(111, 176, 232, 0.55);
+}
+
+.countdown-value.pop {
+  animation: countdown-pop 1s ease both;
+}
+
+@keyframes countdown-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+
+  35% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.question-card {
+  background: linear-gradient(180deg, var(--panel), var(--bg-elevated));
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+  margin-bottom: 1rem;
+}
+
+.type-badge {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: rgba(76, 146, 214, 0.18);
+  border: 1px solid rgba(76, 146, 214, 0.5);
+  color: #cfe6fb;
+  margin-bottom: 0.75rem;
+}
+
+.question-text {
+  font-size: clamp(1.1rem, 2.4vw, 1.45rem);
+  margin-bottom: 1.1rem;
+}
+
+.question-text:focus,
+#results-title:focus {
+  outline: none;
+}
+
+.question-text:focus-visible,
+#results-title:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 6px;
+  border-radius: 4px;
+}
+
+/* Respect users who prefer less motion */
+
+@media (prefers-reduced-motion: reduce) {
+  .question-card.question-enter,
+  .countdown-value.pop,
+  .timer-chip.warning {
+    animation: none;
+  }
+
+  .progress-fill {
+    transition: none;
+  }
+}
+
+/* Multiple-choice options */
+
+.option-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.option-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  width: 100%;
+  text-align: left;
+  padding: 0.8rem 0.95rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--panel-2);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.98rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.05s ease;
+}
+
+.option-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: rgba(111, 176, 232, 0.1);
+}
+
+.option-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.option-btn:disabled {
+  cursor: default;
+}
+
+.option-letter {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border);
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.option-btn.selected {
+  border-color: var(--accent);
+  background: rgba(111, 176, 232, 0.16);
+}
+
+.option-btn.correct {
+  border-color: var(--success);
+  background: rgba(34, 197, 94, 0.16);
+}
+
+.option-btn.correct .option-letter {
+  background: var(--success);
+  color: #04240f;
+  border-color: transparent;
+}
+
+.option-btn.wrong {
+  border-color: var(--danger);
+  background: rgba(239, 68, 68, 0.16);
+}
+
+.option-btn.wrong .option-letter {
+  background: var(--danger);
+  color: #2a0606;
+  border-color: transparent;
+}
+
+/* Non-colour correct/incorrect markers so the result is readable without
+   relying on red/green alone. */
+.option-btn.correct::after,
+.option-btn.wrong::after {
+  margin-left: auto;
+  font-weight: 800;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.option-btn.correct::after {
+  content: "\2713";
+  color: var(--success);
+}
+
+.option-btn.wrong::after {
+  content: "\2715";
+  color: var(--danger);
+}
+
+.answer-hint {
+  margin: 0.9rem 0 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+/* Scramble interaction */
+
+.scramble-view {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.answer-input {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+.answer-input:disabled {
+  opacity: 0.9;
+}
+
+.answer-input.correct {
+  border-color: var(--success);
+  background: rgba(34, 197, 94, 0.12);
+}
+
+.answer-input.wrong {
+  border-color: var(--danger);
+  background: rgba(239, 68, 68, 0.12);
+}
+
+/* Scramble tile rows: shuffled source on top, assembled answer below. */
+
+.scramble-source,
+.scramble-answer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 48px;
+  padding: 0.5rem;
+  border-radius: var(--radius-sm);
+  border: 1px dashed var(--border);
+  background: var(--panel-2);
+}
+
+.scramble-answer {
+  border-style: solid;
+}
+
+.scramble-answer.correct {
+  border-color: var(--success);
+  background: rgba(34, 197, 94, 0.12);
+}
+
+.scramble-answer.wrong {
+  border-color: var(--danger);
+  background: rgba(239, 68, 68, 0.12);
+}
+
+.letter-tile {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
+  padding: 0 0.4rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: transform 0.08s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.letter-tile:hover:not(:disabled) {
+  border-color: var(--success);
+  background: var(--panel-2);
+  transform: translateY(-1px);
+}
+
+.letter-tile:disabled {
+  cursor: default;
+  opacity: 0.85;
+}
+
+@media (min-width: 560px) {
+  .scramble-view-text {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .scramble-view-text .btn {
+    flex: 0 0 auto;
+  }
+}
+
+/* Feedback */
+
+.feedback {
+  margin-top: 1.1rem;
+  padding: 0.9rem 1rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+  font-size: 0.92rem;
+}
+
+.feedback.correct {
+  border-color: rgba(34, 197, 94, 0.55);
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.feedback.wrong {
+  border-color: rgba(239, 68, 68, 0.55);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.feedback.neutral {
+  border-color: rgba(111, 176, 232, 0.55);
+  background: rgba(111, 176, 232, 0.1);
+}
+
+.feedback.neutral .feedback-heading::before {
+  content: "\1F512  ";
+}
+
+.feedback.validation {
+  border-color: rgba(245, 158, 11, 0.6);
+  background: rgba(245, 158, 11, 0.12);
+  color: #fde68a;
+}
+
+.feedback-heading {
+  font-weight: 700;
+  font-size: 1.02rem;
+  margin-bottom: 0.35rem;
+}
+
+.feedback.correct .feedback-heading::before {
+  content: "\2713  ";
+  color: var(--success);
+}
+
+.feedback.wrong .feedback-heading::before {
+  content: "\2715  ";
+  color: var(--danger);
+}
+
+.feedback-answer {
+  margin-bottom: 0.3rem;
+}
+
+.feedback-explanation {
+  color: var(--muted);
+  margin: 0;
+}
+
+.test-controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 0.2rem;
+}
+
+.test-controls .btn {
+  flex: 0 1 auto;
+}
+
+/* On narrow screens stack the controls so each is a comfortable tap target. */
+@media (max-width: 520px) {
+  .test-controls .btn {
+    flex: 1 1 100%;
+  }
+}
+
+/* Keep the controls within reach on small screens when the question is tall. */
+@media (max-width: 899px) {
+  .test-controls {
+    position: sticky;
+    bottom: 0;
+    z-index: 20;
+    padding: 0.65rem 0.25rem;
+    margin-top: 0.5rem;
+    background: linear-gradient(180deg, rgba(4, 16, 33, 0), rgba(4, 16, 33, 0.94) 40%);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+  }
+}
+
+/* Answering-team chip shown to the quizmaster during play */
+
+#answering-chip {
+  background: rgba(111, 176, 232, 0.16);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* Side leaderboard */
+
+.score-list {
+  list-style: none;
+  margin: 0.5rem 0 1rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.score-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.7rem;
+  border-radius: var(--radius-sm);
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  font-size: 0.9rem;
+}
+
+.score-item.active-team {
+  border-color: var(--accent);
+  background: rgba(111, 176, 232, 0.12);
+}
+
+.score-item.leader {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px rgba(111, 176, 232, 0.4);
+}
+
+.score-rank {
+  color: var(--muted);
+  font-weight: 700;
+  min-width: 2rem;
+}
+
+.score-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.score-value {
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.score-empty {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.award-panel {
+  border-top: 1px dashed var(--border);
+  padding-top: 0.9rem;
+}
+
+.award-panel label {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.35rem;
+}
+
+.award-panel select {
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.9rem;
+  margin-bottom: 0.6rem;
+}
+
+.award-panel .hint {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+/* ============================ Results ============================ */
+
+.results-card {
+  width: 100%;
+  margin: 0 auto;
+}
+
+.results-summary {
+  text-align: center;
+  padding: 1rem 0 1.4rem;
+  border-bottom: 1px dashed var(--border);
+  margin-bottom: 1.2rem;
+}
+
+.summary-score {
+  font-size: clamp(1.2rem, 3vw, 1.7rem);
+  font-weight: 700;
+  margin-bottom: 0.3rem;
+}
+
+.summary-percent {
+  font-size: 2.6rem;
+  font-weight: 800;
+  color: var(--accent);
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+.summary-note {
+  color: var(--muted);
+  max-width: 46ch;
+  margin: 0 auto;
+}
+
+.summary-tiles {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.7rem;
+  margin: 1.1rem auto 1.3rem;
+  max-width: 520px;
+}
+
+.stat-tile {
+  flex: 1 1 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+}
+
+.stat-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.stat-correct {
+  border-color: rgba(34, 197, 94, 0.5);
+}
+
+.stat-correct .stat-value {
+  color: #86efac;
+}
+
+.stat-wrong {
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
+.stat-wrong .stat-value {
+  color: #fca5a5;
+}
+
+.stat-skipped .stat-value {
+  color: var(--muted);
+}
+
+.results-leaderboard {
+  margin-bottom: 1.4rem;
+}
+
+.leaderboard-list {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.leaderboard-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.85rem;
+  border-radius: var(--radius-sm);
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+}
+
+.leaderboard-rank {
+  font-weight: 800;
+  color: var(--accent);
+  min-width: 2.2rem;
+}
+
+.leaderboard-name {
+  flex: 1;
+}
+
+.leaderboard-score {
+  font-weight: 700;
+}
+
+.leaderboard-time {
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+  font-size: 0.85rem;
+  min-width: 3.2rem;
+  text-align: right;
+}
+
+.score-time {
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+  font-size: 0.85rem;
+  min-width: 3.2rem;
+  text-align: right;
+}
+
+/* The lobby leaderboard button replaces the inline list, so the panel keeps
+   its heading and the "Answering team" selector without a live score list. */
+.lobby-side .lobby-leaderboard-btn {
+  margin: 0.4rem 0 0.8rem;
+}
+
+/* The leaderboard modal holds a long ranked list, so the body scrolls while
+   the title and Close button stay pinned. */
+.lobby-leaderboard-modal {
+  width: min(100%, 460px);
+  max-height: min(88vh, 640px);
+  display: flex;
+  flex-direction: column;
+}
+
+.lobby-leaderboard-modal .score-list {
+  overflow-y: auto;
+  max-height: calc(min(88vh, 640px) - 8rem);
+  margin: 0.5rem 0 1rem;
+}
+
+/* The recycle bin sits beside the settings gear in the header. */
+.icon-btn + .icon-btn {
+  margin-left: 0.35rem;
+}
+
+.recycle-bin-modal {
+  width: min(100%, 460px);
+  max-height: min(88vh, 640px);
+  display: flex;
+  flex-direction: column;
+}
+
+.recycle-bin-modal .score-list {
+  overflow-y: auto;
+  max-height: calc(min(88vh, 640px) - 10rem);
+  margin: 0.5rem 0 1rem;
+}
+
+.recycle-bin-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.7rem;
+}
+
+.recycle-bin-item .score-rank {
+  color: var(--muted);
+  font-weight: 700;
+  min-width: 3.5rem;
+}
+
+.recycle-bin-item .score-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recycle-bin-item .btn {
+  flex: 0 0 auto;
+}
+
+/* Review */
+
+.review h3,
+.results-leaderboard h3 {
+  margin-bottom: 0.6rem;
+}
+
+.review-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.review-item {
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  border-left-width: 4px;
+  background: var(--panel-2);
+}
+
+.review-item.review-correct {
+  border-left-color: var(--success);
+}
+
+.review-item.review-wrong {
+  border-left-color: var(--danger);
+}
+
+.review-item.review-locked {
+  border-left-color: var(--muted);
+}
+
+.review-item.review-locked .review-badge {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--muted);
+}
+
+.review-line.masked,
+.review-explanation.masked {
+  color: var(--muted);
+  font-style: italic;
+  letter-spacing: 0.02em;
+}
+
+.review-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 1.1rem 0 0.7rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: var(--radius-sm);
+  border: 1px dashed var(--border);
+  background: var(--panel-2);
+}
+
+.review-toolbar .hint {
+  margin: 0;
+  flex: 1 1 16rem;
+}
+
+.review-toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* Shows which level a team list or a leaderboard belongs to. */
+.level-badge {
+  display: inline-block;
+  margin-left: 0.45rem;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  vertical-align: middle;
+}
+
+.review-top {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.35rem;
+}
+
+.review-number {
+  font-weight: 800;
+  color: var(--muted);
+}
+
+.review-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.review-item.review-correct .review-badge {
+  background: rgba(34, 197, 94, 0.2);
+  color: #86efac;
+}
+
+.review-item.review-wrong .review-badge {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+}
+
+.review-question {
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+}
+
+.review-line {
+  font-size: 0.88rem;
+  margin-bottom: 0.2rem;
+}
+
+.review-explanation {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin: 0.3rem 0 0;
+}
+
+.results-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin: 0.4rem 0 1.1rem;
+  justify-content: center;
+}
+
+.results-actions .btn {
+  flex: 1 1 180px;
+}
+
+.review-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.1rem;
+}
+
+.review-filter-btn {
+  padding: 0.42rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--panel-2);
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.review-filter-btn:hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.review-filter-btn.active {
+  border-color: var(--accent);
+  background: rgba(111, 176, 232, 0.16);
+  color: #ffffff;
+}
+
+.review-filter-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ==========================================================================
+   Settings screen
+   ========================================================================== */
+
+.settings-panel {
+  width: min(100%, 420px);
+  margin: 0 auto;
+}
+
+.settings-group {
+  margin: 1.25rem 0 0;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.settings-group h3 {
+  margin: 0 0 0.6rem;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  color: #aecdec;
+  text-transform: uppercase;
+}
+
+.settings-group .toggle-row {
+  margin-bottom: 0.6rem;
+}
+
+.settings-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.settings-buttons .btn {
+  flex: 0 1 auto;
+}
+
+.settings-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1.4rem;
+}
+
+/* ==========================================================================
+   Confirmation modal
+   ========================================================================== */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(2, 8, 18, 0.72);
+  backdrop-filter: blur(3px);
+  animation: modal-fade 0.15s ease;
+}
+
+.modal-overlay[hidden] {
+  display: none;
+}
+
+.modal {
+  width: min(100%, 420px);
+  padding: 1.5rem 1.6rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, var(--panel), var(--bg-elevated));
+  box-shadow: var(--shadow);
+  animation: modal-pop 0.16s ease;
+}
+
+.modal-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.15rem;
+  color: var(--text);
+}
+
+.modal-message {
+  margin: 0 0 1.35rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.65rem;
+}
+
+.modal-actions.template-actions {
+  flex-wrap: wrap;
+}
+
+.modal-actions.template-actions .btn {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.template-format-group {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.template-format-chip {
+  flex: 1;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.6rem;
+  background: var(--panel-2);
+  color: var(--text);
+  cursor: pointer;
+  font-weight: 600;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.template-format-chip.is-active {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+
+.review-team {
+  color: var(--accent);
+}
+
+@keyframes modal-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modal-pop {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal-overlay,
+  .modal {
+    animation: none;
+  }
+}
+
+/* ==========================================================================
+   Authentication screen
+   ========================================================================== */
+
+.auth-layout {
+  display: flex;
+  justify-content: center;
+}
+
+.auth-panel {
+  width: min(100%, 420px);
+  /* The sign-in panel fades in, so the first frame of the app reads as a
+     deliberate login screen instead of a hard pop. */
+  animation: auth-panel-in 140ms ease-out;
+}
+
+@keyframes auth-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-panel {
+    animation: none;
+  }
+}
+
+/* Text and password inputs match the theme and keep a visible focus ring,
+   which the generic focus rule above does not cover for passwords. */
+.auth-panel input[type="text"],
+.auth-panel input[type="password"] {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+
+.auth-panel input[type="text"]:focus-visible,
+.auth-panel input[type="password"]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.auth-error {
+  margin: 0.8rem 0 0;
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(239, 68, 68, 0.55);
+  background: rgba(239, 68, 68, 0.1);
+  color: #fecaca;
+  font-size: 0.88rem;
+}
+
+/* Login / register: no header, form centered on the screen. */
+body.auth-mode .app-header {
+  display: none;
+}
+
+body.quiz-mode .app-header {
+  display: none;
+}
+
+body.auth-mode .app-shell {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+body.auth-mode #screen-container {
+  width: 100%;
+}
