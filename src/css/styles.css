@@ -1405,6 +1405,12 @@ textarea::placeholder {
   padding: 1rem 0 1.4rem;
   border-bottom: 1px dashed var(--border);
   margin-bottom: 1.2rem;
+  opacity: 0;
+  transition: opacity 220ms ease;
+}
+
+.results-summary.summary-visible {
+  opacity: 1;
 }
 
 .summary-score {

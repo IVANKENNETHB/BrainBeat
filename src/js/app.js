@@ -3331,6 +3331,7 @@ class QuizApp {
 
   renderResults() {
     this.renderSummary();
+    this.toggleSummaryVisibility();
     this.renderReview();
     this.updateRetryButton();
     this.updateRevealControls();
@@ -3657,10 +3658,11 @@ class QuizApp {
 
     if (!overlay) {
       // No prompt available: unlock right away.
-      this.answersRevealed = true;
-      this.renderReview();
-      this.updateRevealControls();
-      return;
+    this.answersRevealed = true;
+    this.toggleSummaryVisibility();
+    this.renderReview();
+    this.updateRevealControls();
+    return;
     }
 
     if (this.dom.revealError) {
@@ -3720,6 +3722,7 @@ class QuizApp {
 
     this.answersRevealed = true;
     this.closeRevealModal();
+    this.toggleSummaryVisibility();
     this.renderReview();
     this.updateRevealControls();
   }
@@ -3739,6 +3742,7 @@ class QuizApp {
   /** Locks the answer review again. */
   hideAnswers() {
     this.answersRevealed = false;
+    this.toggleSummaryVisibility();
     this.renderReview();
     this.updateRevealControls();
   }
@@ -3765,6 +3769,20 @@ class QuizApp {
         ? "The correct answers are visible. Use \"Hide answers\" to lock them again."
         : "The correct answers are hidden. Enter the admin password to reveal them.";
     }
+  }
+
+  /** Toggles the result summary block in step with the answer lock state. */
+  toggleSummaryVisibility() {
+    const summary = this.dom.resultsSummary;
+
+    if (!summary) {
+      return;
+    }
+
+    const visible = this.answersRevealed;
+
+    summary.hidden = !visible;
+    summary.classList.toggle("summary-visible", visible);
   }
 
   /* ===================== Imported questions ===================== */
