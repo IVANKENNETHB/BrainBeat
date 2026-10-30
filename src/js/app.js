@@ -4019,6 +4019,8 @@ class QuizApp {
     this.dom.templateOverlay.hidden = false;
     Sound.play("confirm");
 
+    this.setTemplateFormat("csv");
+
     const primary = this.dom.templateOverlay.querySelector('[data-action="template-save"]');
 
     if (primary) {

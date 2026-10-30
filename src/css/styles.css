@@ -1891,24 +1891,40 @@ textarea::placeholder {
 .template-format-group {
   display: flex;
   gap: 0.5rem;
+  margin: 0.75rem 0;
 }
 
 .template-format-chip {
   flex: 1;
-  padding: 0.55rem 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.5rem 0.85rem;
   border: 1px solid var(--border);
-  border-radius: 0.6rem;
+  border-radius: 999px;
   background: var(--panel-2);
   color: var(--text);
   cursor: pointer;
+  font-size: 0.9rem;
   font-weight: 600;
-  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.template-format-chip:hover {
+  border-color: var(--accent);
+}
+
+.template-format-chip:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .template-format-chip.is-active {
   border-color: var(--accent);
-  background: var(--accent);
-  color: #fff;
+  background: rgba(111, 176, 232, 0.16);
+  color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
 }
 
 .review-team {
