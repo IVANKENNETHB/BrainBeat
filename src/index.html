@@ -271,68 +271,70 @@
           <h2 id="settings-title" tabindex="-1">Settings</h2>
           <p class="hint">Audio and answer options. Changes are saved automatically.</p>
 
-          <div class="settings-group">
-            <h3>Sound</h3>
+          <div class="settings-grid">
+            <div class="settings-group">
+              <h3>Sound</h3>
 
-            <label class="toggle-row">
-              <input type="checkbox" id="sound-toggle" checked />
-              <span>Sound effects</span>
-            </label>
+              <label class="toggle-row">
+                <input type="checkbox" id="sound-toggle" checked />
+                <span>Sound effects</span>
+              </label>
 
-            <label class="toggle-row">
-              <input type="checkbox" id="bgm-toggle" checked />
-              <span>Background music</span>
-            </label>
+              <label class="toggle-row">
+                <input type="checkbox" id="bgm-toggle" checked />
+                <span>Background music</span>
+              </label>
 
-            <div class="field" id="bgm-volume-field">
-              <span class="field-label" id="bgm-volume-label">Music volume</span>
-              <div class="slider-row">
-                <input type="range" id="bgm-volume" min="0" max="100" step="1" value="80"
-                  aria-labelledby="bgm-volume-label" />
-                <span class="slider-value" id="bgm-volume-value">80%</span>
+              <div class="field" id="bgm-volume-field">
+                <span class="field-label" id="bgm-volume-label">Music volume</span>
+                <div class="slider-row">
+                  <input type="range" id="bgm-volume" min="0" max="100" step="1" value="80"
+                    aria-labelledby="bgm-volume-label" />
+                  <span class="slider-value" id="bgm-volume-value">80%</span>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div class="settings-group">
-            <h3>Questions</h3>
+            <div class="settings-group">
+              <h3>Questions</h3>
 
-            <label class="toggle-row">
-              <input type="checkbox" id="shuffle-choices" />
-              <span>Shuffle answer choices</span>
-            </label>
-          </div>
-
-          <div class="settings-group">
-            <h3>Display</h3>
-
-            <div class="settings-buttons">
-              <button type="button" class="btn" id="fullscreen-btn" data-action="fullscreen">Fullscreen</button>
-              <button type="button" class="btn" id="exit-fullscreen-btn" data-action="exit-fullscreen">Exit fullscreen</button>
+              <label class="toggle-row">
+                <input type="checkbox" id="shuffle-choices" />
+                <span>Shuffle answer choices</span>
+              </label>
             </div>
-            <p class="hint" id="fullscreen-hint">The window is not fullscreen. Press F11 to toggle it.</p>
-          </div>
 
-          <div class="settings-group">
-            <h3>Question Bank</h3>
-            <ul class="bank-stats">
-              <li><span>Total questions</span><strong id="bank-total">0</strong></li>
-              <li><span>Multiple choice</span><strong id="bank-mc">0</strong></li>
-              <li><span>Scramble</span><strong id="bank-id">0</strong></li>
-            </ul>
-            <p class="hint">Questions are drawn at random with no duplicates. The original question bank is never modified.</p>
-          </div>
+            <div class="settings-group full-width">
+              <h3>Display</h3>
 
-          <div class="settings-group">
-            <h3>Import questions</h3>
-            <p class="hint">Add questions from a <strong>.json</strong>, <strong>.csv</strong> or <strong>.txt</strong> file. Imported questions are saved in this browser and added on top of the built-in bank.</p>
-            <input type="file" id="import-file" accept=".json,.csv,.txt,application/json,text/csv,text/plain" hidden />
-            <div class="import-buttons">
-              <button type="button" class="btn btn-primary" data-action="import-file">Choose File</button>
-              <button type="button" class="btn" data-action="download-template">Download Template</button>
-              <button type="button" class="btn btn-danger-outline" data-action="clear-imported">Clear Imported</button>
+              <div class="settings-buttons">
+                <button type="button" class="btn" id="fullscreen-btn" data-action="fullscreen">Fullscreen</button>
+                <button type="button" class="btn" id="exit-fullscreen-btn" data-action="exit-fullscreen">Exit fullscreen</button>
+              </div>
+              <p class="hint" id="fullscreen-hint">The window is not fullscreen. Press F11 to toggle it.</p>
             </div>
-            <p class="import-status" id="import-status" hidden></p>
+
+            <div class="settings-group full-width">
+              <h3>Question Bank</h3>
+              <ul class="bank-stats">
+                <li><span>Total questions</span><strong id="bank-total">0</strong></li>
+                <li><span>Multiple choice</span><strong id="bank-mc">0</strong></li>
+                <li><span>Scramble</span><strong id="bank-id">0</strong></li>
+              </ul>
+              <p class="hint">Questions are drawn at random with no duplicates. The original question bank is never modified.</p>
+            </div>
+
+            <div class="settings-group full-width">
+              <h3>Import questions</h3>
+              <p class="hint">Add questions from a <strong>.json</strong>, <strong>.csv</strong> or <strong>.txt</strong> file. Imported questions are saved in this browser and added on top of the built-in bank.</p>
+              <input type="file" id="import-file" accept=".json,.csv,.txt,application/json,text/csv,text/plain" hidden />
+              <div class="import-buttons">
+                <button type="button" class="btn btn-primary" data-action="import-file">Choose File</button>
+                <button type="button" class="btn" data-action="download-template">Download Template</button>
+                <button type="button" class="btn btn-danger-outline" data-action="clear-imported">Clear Imported</button>
+              </div>
+              <p class="import-status" id="import-status" hidden></p>
+            </div>
           </div>
 
           <div class="settings-actions">

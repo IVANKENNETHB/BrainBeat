@@ -1,5 +1,5 @@
 use crate::db;
-use crate::models::{DeletedTeam, Question, Settings, Stats, Team};
+use crate::models::{DeletedTeam, DeletedTopic, Question, Settings, Stats, Team, Topic};
 use argon2::{Argon2, PasswordHasher, PasswordVerifier};
 use argon2::password_hash::{PasswordHash, SaltString};
 use rusqlite::Connection;
@@ -254,6 +254,71 @@ pub fn purge_expired_deleted_teams(state: State<'_, AppState>) -> Result<usize, 
 pub fn delete_team_from_bin(state: State<'_, AppState>, name: String, level: String) -> Result<bool, String> {
     let conn = state.conn.lock().map_err(|e| e.to_string())?;
     db::delete_team_from_bin(&conn, &name, &level).map_err(|e| e.to_string())
+}
+
+/// Returns every topic ordered by name.
+#[tauri::command]
+pub fn get_topics(state: State<'_, AppState>) -> Result<Vec<Topic>, String> {
+    let conn = state.conn.lock().map_err(|e| e.to_string())?;
+    db::list_topics(&conn).map_err(|e| e.to_string())
+}
+
+/// Returns every topic with its question count.
+#[tauri::command]
+pub fn get_topics_with_counts(state: State<'_, AppState>) -> Result<Vec<(Topic, i64)>, String> {
+    let conn = state.conn.lock().map_err(|e| e.to_string())?;
+    db::get_topics_with_counts(&conn).map_err(|e| e.to_string())
+}
+
+/// Creates a new topic and returns it with the assigned id.
+#[tauri::command]
+pub fn add_topic(state: State<'_, AppState>, name: String) -> Result<Topic, String> {
+    let conn = state.conn.lock().map_err(|e| e.to_string())?;
+    db::add_topic(&conn, &name).map_err(|e| e.to_string())
+}
+
+/// Renames a topic. Returns true when a row was actually updated.
+#[tauri::command]
+pub fn update_topic(state: State<'_, AppState>, id: i64, name: String) -> Result<bool, String> {
+    let conn = state.conn.lock().map_err(|e| e.to_string())?;
+    db::update_topic(&conn, id, &name).map_err(|e| e.to_string())
+}
+
+/// Removes a topic: moves it to the topic bin and nullifies topic_id on its
+/// questions and teams. Returns true when a topic was actually removed.
+#[tauri::command]
+pub fn delete_topic(state: State<'_, AppState>, id: i64) -> Result<bool, String> {
+    let conn = state.conn.lock().map_err(|e| e.to_string())?;
+    db::delete_topic(&conn, id).map_err(|e| e.to_string())
+}
+
+/// Returns every topic currently held in the topic bin, newest first.
+#[tauri::command]
+pub fn list_deleted_topics(state: State<'_, AppState>) -> Result<Vec<DeletedTopic>, String> {
+    let conn = state.conn.lock().map_err(|e| e.to_string())?;
+    db::list_deleted_topics(&conn).map_err(|e| e.to_string())
+}
+
+/// Restores a topic from the topic bin back into the active list.
+#[tauri::command]
+pub fn recover_topic_from_bin(state: State<'_, AppState>, id: i64) -> Result<bool, String> {
+    let conn = state.conn.lock().map_err(|e| e.to_string())?;
+    db::recover_topic_from_bin(&conn, id).map_err(|e| e.to_string())
+}
+
+/// Purges every topic-bin entry older than 30 days. Returns the number removed.
+#[tauri::command]
+pub fn purge_expired_deleted_topics(state: State<'_, AppState>) -> Result<usize, String> {
+    let conn = state.conn.lock().map_err(|e| e.to_string())?;
+    db::purge_expired_deleted_topics(&conn).map_err(|e| e.to_string())
+}
+
+/// Permanently removes a topic from the topic bin. Returns true when a bin
+/// entry was actually deleted.
+#[tauri::command]
+pub fn delete_topic_from_bin(state: State<'_, AppState>, id: i64) -> Result<bool, String> {
+    let conn = state.conn.lock().map_err(|e| e.to_string())?;
+    db::delete_topic_from_bin(&conn, id).map_err(|e| e.to_string())
 }
 
 /// Stores a team's best result on a level (score, questions answered,

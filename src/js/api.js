@@ -141,6 +141,53 @@ window.QuizApi = {
     return this._call("delete_team_from_bin", { name, level: String(level || "normal") });
   },
 
+  /* ===================== Topics ===================== */
+
+  /** Returns every topic ordered by name. */
+  getTopics() {
+    return this._call("get_topics");
+  },
+
+  /** Returns every topic with its question count. */
+  getTopicsWithCounts() {
+    return this._call("get_topics_with_counts");
+  },
+
+  /** Creates a new topic. */
+  addTopic(name) {
+    return this._call("add_topic", { name: String(name || "") });
+  },
+
+  /** Renames a topic. Returns true when a row was actually updated. */
+  updateTopic(id, name) {
+    return this._call("update_topic", { id: Number(id), name: String(name || "") });
+  },
+
+  /** Removes a topic: moves it to the topic bin and nullifies topic_id on its questions and teams. */
+  deleteTopic(id) {
+    return this._call("delete_topic", { id: Number(id) });
+  },
+
+  /** Returns every topic currently held in the topic bin, newest first. */
+  listDeletedTopics() {
+    return this._call("list_deleted_topics");
+  },
+
+  /** Restores a topic from the topic bin back into the active list. */
+  recoverTopicFromBin(id) {
+    return this._call("recover_topic_from_bin", { id: Number(id) });
+  },
+
+  /** Purges every topic-bin entry older than 30 days. Returns the number removed. */
+  purgeExpiredDeletedTopics() {
+    return this._call("purge_expired_deleted_topics");
+  },
+
+  /** Permanently removes a topic from the topic bin. */
+  deleteTopicFromBin(id) {
+    return this._call("delete_topic_from_bin", { id: Number(id) });
+  },
+
   /** Stores a team's best result (score, questions played, answering time). */
   setTeamResult(name, level, score, totalQuestions, timeSeconds) {
     return this._call("set_team_result", {

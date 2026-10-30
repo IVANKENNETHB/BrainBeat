@@ -24,6 +24,9 @@ pub struct Question {
     pub accepted_answers: Vec<String>,
     #[serde(default)]
     pub explanation: String,
+    /// Optional topic the question belongs to. Null means uncategorized.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub topic_id: Option<i64>,
 }
 
 fn default_source() -> String {
@@ -32,6 +35,32 @@ fn default_source() -> String {
 
 fn default_difficulty() -> String {
     "normal".to_string()
+}
+
+/// A user-defined topic (subject) that questions can be organized under.
+/// Topics coexist with levels: level drives difficulty/scramble mix, topic
+/// drives organization and per-topic leaderboards.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Topic {
+    #[serde(default)]
+    pub id: i64,
+    pub name: String,
+    #[serde(default)]
+    pub created_at: String,
+}
+
+/// A topic that was removed and is kept in the topic bin.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DeletedTopic {
+    #[serde(default)]
+    pub id: i64,
+    pub name: String,
+    #[serde(default)]
+    pub created_at: String,
+    /// SQLite datetime of when the topic was moved to the bin.
+    pub deleted_at: String,
 }
 
 /// Settings returned to the frontend. Serialized in camelCase to match
@@ -87,6 +116,9 @@ pub struct Team {
     /// The level the team plays on. Every level has its own teams.
     #[serde(default = "default_level")]
     pub level: String,
+    /// The topic the team plays on. Every topic has its own teams and leaderboard.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub topic_id: Option<i64>,
     /// The team's best single-game score. Never decreases.
     #[serde(default)]
     pub score: i64,
@@ -166,6 +198,7 @@ mod tests {
             correct_answer: serde_json::json!(0),
             accepted_answers: vec![],
             explanation: String::new(),
+            topic_id: None,
         };
 
         let json = serde_json::to_value(&q).unwrap();
@@ -191,6 +224,7 @@ mod tests {
             id: 1,
             name: "Gray".into(),
             level: "expert".into(),
+            topic_id: None,
             score: 8,
             total_questions: 10,
             time_seconds: 300,
@@ -209,5 +243,105 @@ mod tests {
         let team: Team = serde_json::from_str(r#"{"name":"Gray","score":8}"#).unwrap();
 
         assert_eq!(team.level, "normal");
+    }
+
+    #[test]
+    fn topic_serializes_to_camel_case() {
+        let topic = Topic {
+            id: 1,
+            name: "History".into(),
+            created_at: "2024-01-01 00:00:00".into(),
+        };
+
+        let json = serde_json::to_value(&topic).unwrap();
+        assert_eq!(json["id"], 1);
+        assert_eq!(json["name"], "History");
+        assert_eq!(json["createdAt"], "2024-01-01 00:00:00");
+    }
+
+    #[test]
+    fn deleted_topic_serializes_to_camel_case() {
+        let deleted = DeletedTopic {
+            id: 1,
+            name: "History".into(),
+            created_at: "2024-01-01 00:00:00".into(),
+            deleted_at: "2024-01-15 00:00:00".into(),
+        };
+
+        let json = serde_json::to_value(&deleted).unwrap();
+        assert_eq!(json["id"], 1);
+        assert_eq!(json["name"], "History");
+        assert_eq!(json["createdAt"], "2024-01-01 00:00:00");
+        assert_eq!(json["deletedAt"], "2024-01-15 00:00:00");
+    }
+
+    #[test]
+    fn question_with_topic_id_serializes() {
+        let q = Question {
+            id: 1,
+            source: "imported".into(),
+            qtype: "multiple-choice".into(),
+            difficulty: "normal".into(),
+            text: "Q?".into(),
+            options: Some(vec!["A".into()]),
+            correct_answer: serde_json::json!(0),
+            accepted_answers: vec![],
+            explanation: String::new(),
+            topic_id: Some(5),
+        };
+
+        let json = serde_json::to_value(&q).unwrap();
+        assert_eq!(json["topicId"], 5);
+    }
+
+    #[test]
+    fn question_without_topic_id_omits_field() {
+        let q = Question {
+            id: 1,
+            source: "imported".into(),
+            qtype: "multiple-choice".into(),
+            difficulty: "normal".into(),
+            text: "Q?".into(),
+            options: Some(vec!["A".into()]),
+            correct_answer: serde_json::json!(0),
+            accepted_answers: vec![],
+            explanation: String::new(),
+            topic_id: None,
+        };
+
+        let json = serde_json::to_value(&q).unwrap();
+        assert!(!json.as_object().unwrap().contains_key("topicId"));
+    }
+
+    #[test]
+    fn team_with_topic_id_serializes() {
+        let team = Team {
+            id: 1,
+            name: "Gray".into(),
+            level: "expert".into(),
+            topic_id: Some(3),
+            score: 8,
+            total_questions: 10,
+            time_seconds: 300,
+        };
+
+        let json = serde_json::to_value(&team).unwrap();
+        assert_eq!(json["topicId"], 3);
+    }
+
+    #[test]
+    fn team_without_topic_id_omits_field() {
+        let team = Team {
+            id: 1,
+            name: "Gray".into(),
+            level: "expert".into(),
+            topic_id: None,
+            score: 8,
+            total_questions: 10,
+            time_seconds: 300,
+        };
+
+        let json = serde_json::to_value(&team).unwrap();
+        assert!(!json.as_object().unwrap().contains_key("topicId"));
     }
 }

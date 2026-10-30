@@ -1,4 +1,4 @@
-use crate::models::{DeletedTeam, Question, Team};
+use crate::models::{DeletedTeam, DeletedTopic, Question, Team, Topic};
 use rusqlite::{params, Connection, OptionalExtension};
 use std::path::Path;
 
@@ -105,6 +105,36 @@ pub fn init_schema(conn: &Connection) -> rusqlite::Result<()> {
     ensure_column(conn, "deleted_teams", "total_questions", "INTEGER NOT NULL DEFAULT 0")?;
     ensure_column(conn, "deleted_teams", "time_seconds", "INTEGER NOT NULL DEFAULT 0")?;
 
+    // Topics organize questions independently of levels. Each topic has its
+    // own team list and leaderboard.
+    ensure_table(conn, "topics", "
+        CREATE TABLE IF NOT EXISTS topics (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            name        TEXT NOT NULL,
+            created_at  TEXT NOT NULL
+        );
+    ")?;
+
+    // The topic bin holds removed topics for 30 days before automatic purge.
+    ensure_table(conn, "deleted_topics", "
+        CREATE TABLE IF NOT EXISTS deleted_topics (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            name        TEXT NOT NULL,
+            created_at  TEXT NOT NULL,
+            deleted_at  TEXT NOT NULL
+        );
+    ")?;
+
+    // Questions and teams may optionally belong to a topic. Null means
+    // uncategorized; existing rows keep working without a topic.
+    ensure_column(conn, "questions", "topic_id", "INTEGER")?;
+    ensure_column(conn, "teams", "topic_id", "INTEGER")?;
+
+    // Purge expired topic-bin entries on startup, same as the team bin.
+    if let Err(error) = purge_expired_deleted_topics(conn) {
+        eprintln!("could not purge expired deleted topics: {error}");
+    }
+
     // The app ships without a built-in bank, so the questions of older
     // builds are dropped on start up. Imported questions are kept.
     conn.execute("DELETE FROM questions WHERE source = 'builtin'", [])?;
@@ -204,8 +234,8 @@ pub fn insert_question(conn: &Connection, source: &str, q: &Question) -> rusqlit
     let accepted_json = serde_json::to_string(&q.accepted_answers).unwrap();
 
     conn.execute(
-        "INSERT INTO questions (source, type, difficulty, text, options, correct_answer, accepted_answers, explanation)
-         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
+        "INSERT INTO questions (source, type, difficulty, text, options, correct_answer, accepted_answers, explanation, topic_id)
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)",
         params![
             source,
             q.qtype,
@@ -214,7 +244,8 @@ pub fn insert_question(conn: &Connection, source: &str, q: &Question) -> rusqlit
             options_json,
             correct_json,
             accepted_json,
-            q.explanation
+            q.explanation,
+            q.topic_id
         ],
     )?;
 
@@ -245,13 +276,14 @@ fn row_to_question(row: &rusqlite::Row) -> rusqlite::Result<Question> {
         correct_answer,
         accepted_answers,
         explanation: row.get("explanation")?,
+        topic_id: row.get("topic_id")?,
     })
 }
 
 /// Returns every question in the bank, ordered by id.
 pub fn list_all(conn: &Connection) -> rusqlite::Result<Vec<Question>> {
     let mut stmt = conn.prepare(
-        "SELECT id, source, type, difficulty, text, options, correct_answer, accepted_answers, explanation
+        "SELECT id, source, type, difficulty, text, options, correct_answer, accepted_answers, explanation, topic_id
          FROM questions ORDER BY id ASC",
     )?;
 
@@ -304,12 +336,12 @@ pub fn set_setting(conn: &Connection, key: &str, value: &str) -> rusqlite::Resul
 pub fn add_team(conn: &Connection, name: &str, level: &str) -> rusqlite::Result<Team> {
     let now = chrono::Utc::now().to_rfc3339();
     conn.execute(
-        "INSERT OR IGNORE INTO teams (name, level, created_at) VALUES (?1, ?2, ?3)",
+        "INSERT OR IGNORE INTO teams (name, level, topic_id, created_at) VALUES (?1, ?2, NULL, ?3)",
         params![name, level, now],
     )?;
 
     conn.query_row(
-        "SELECT id, name, level, score, total_questions, time_seconds
+        "SELECT id, name, level, topic_id, score, total_questions, time_seconds
          FROM teams WHERE name = ?1 AND level = ?2",
         params![name, level],
         |row| {
@@ -317,9 +349,10 @@ pub fn add_team(conn: &Connection, name: &str, level: &str) -> rusqlite::Result<
                 id: row.get(0)?,
                 name: row.get(1)?,
                 level: row.get(2)?,
-                score: row.get(3)?,
-                total_questions: row.get(4)?,
-                time_seconds: row.get(5)?,
+                topic_id: row.get(3)?,
+                score: row.get(4)?,
+                total_questions: row.get(5)?,
+                time_seconds: row.get(6)?,
             })
         },
     )
@@ -328,7 +361,7 @@ pub fn add_team(conn: &Connection, name: &str, level: &str) -> rusqlite::Result<
 /// Returns all saved teams, ordered by level and then by name.
 pub fn get_teams(conn: &Connection) -> rusqlite::Result<Vec<Team>> {
     let mut stmt = conn.prepare(
-        "SELECT id, name, level, score, total_questions, time_seconds
+        "SELECT id, name, level, topic_id, score, total_questions, time_seconds
          FROM teams ORDER BY level ASC, name ASC",
     )?;
     let rows = stmt.query_map([], |row| {
@@ -336,9 +369,10 @@ pub fn get_teams(conn: &Connection) -> rusqlite::Result<Vec<Team>> {
             id: row.get(0)?,
             name: row.get(1)?,
             level: row.get(2)?,
-            score: row.get(3)?,
-            total_questions: row.get(4)?,
-            time_seconds: row.get(5)?,
+            topic_id: row.get(3)?,
+            score: row.get(4)?,
+            total_questions: row.get(5)?,
+            time_seconds: row.get(6)?,
         })
     })?;
     rows.collect()
@@ -497,6 +531,193 @@ pub fn delete_team_from_bin(conn: &Connection, name: &str, level: &str) -> rusql
     Ok(affected > 0)
 }
 
+/// Returns every topic ordered by name.
+pub fn list_topics(conn: &Connection) -> rusqlite::Result<Vec<Topic>> {
+    let mut stmt = conn.prepare(
+        "SELECT id, name, created_at FROM topics ORDER BY name ASC",
+    )?;
+    let rows = stmt.query_map([], |row| {
+        Ok(Topic {
+            id: row.get(0)?,
+            name: row.get(1)?,
+            created_at: row.get(2)?,
+        })
+    })?;
+    rows.collect()
+}
+
+/// Returns every topic with its question count.
+pub fn get_topics_with_counts(conn: &Connection) -> rusqlite::Result<Vec<(Topic, i64)>> {
+    let mut stmt = conn.prepare(
+        "SELECT t.id, t.name, t.created_at, COUNT(q.id)
+         FROM topics t
+         LEFT JOIN questions q ON q.topic_id = t.id
+         GROUP BY t.id, t.name, t.created_at
+         ORDER BY t.name ASC",
+    )?;
+    let rows = stmt.query_map([], |row| {
+        let topic = Topic {
+            id: row.get(0)?,
+            name: row.get(1)?,
+            created_at: row.get(2)?,
+        };
+        let count: i64 = row.get(3)?;
+        Ok((topic, count))
+    })?;
+    rows.collect()
+}
+
+/// Inserts a new topic and returns it with the assigned id.
+pub fn add_topic(conn: &Connection, name: &str) -> rusqlite::Result<Topic> {
+    let now = chrono::Local::now().format("%Y-%m-%d %H:%M:%S").to_string();
+    conn.execute(
+        "INSERT INTO topics (name, created_at) VALUES (?1, ?2)",
+        params![name, now],
+    )?;
+
+    Ok(Topic {
+        id: conn.last_insert_rowid(),
+        name: name.to_string(),
+        created_at: now,
+    })
+}
+
+/// Renames a topic. Returns true when a row was actually updated.
+pub fn update_topic(conn: &Connection, id: i64, name: &str) -> rusqlite::Result<bool> {
+    let affected = conn.execute(
+        "UPDATE topics SET name = ?2 WHERE id = ?1",
+        params![id, name],
+    )?;
+
+    Ok(affected > 0)
+}
+
+/// Removes a topic: moves it to the topic bin and nullifies topic_id on its
+/// questions and teams. The questions and teams themselves are not deleted.
+pub fn delete_topic(conn: &Connection, id: i64) -> rusqlite::Result<bool> {
+    let row: Option<(i64, String, String)> = conn
+        .query_row(
+            "SELECT id, name, created_at FROM topics WHERE id = ?1",
+            params![id],
+            |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+        )
+        .optional()?;
+
+    let row = match row {
+        Some(row) => row,
+        None => return Ok(false),
+    };
+
+    conn.execute("DELETE FROM topics WHERE id = ?1", params![id])?;
+
+    // Nullify topic_id on questions and teams of this topic so they remain
+    // usable but uncategorized.
+    conn.execute(
+        "UPDATE questions SET topic_id = NULL WHERE topic_id = ?1",
+        params![id],
+    )?;
+    conn.execute(
+        "UPDATE teams SET topic_id = NULL WHERE topic_id = ?1",
+        params![id],
+    )?;
+
+    // Store the timestamp in SQLite's native format so the 30-day purge can
+    // compare it with datetime('now').
+    conn.execute(
+        "INSERT INTO deleted_topics (id, name, created_at, deleted_at)
+         VALUES (?1, ?2, ?3, datetime('now'))",
+        params![row.0, row.1, row.2],
+    )?;
+
+    Ok(true)
+}
+
+/// Returns every topic currently held in the topic bin, newest first.
+pub fn list_deleted_topics(conn: &Connection) -> rusqlite::Result<Vec<DeletedTopic>> {
+    let mut stmt = conn.prepare(
+        "SELECT id, name, created_at, deleted_at FROM deleted_topics ORDER BY deleted_at DESC, id DESC",
+    )?;
+    let rows = stmt.query_map([], |row| {
+        Ok(DeletedTopic {
+            id: row.get(0)?,
+            name: row.get(1)?,
+            created_at: row.get(2)?,
+            deleted_at: row.get(3)?,
+        })
+    })?;
+    rows.collect()
+}
+
+/// Restores a topic from the topic bin back into the active list.
+///
+/// Returns true when a row was actually restored.
+pub fn recover_topic_from_bin(conn: &Connection, id: i64) -> rusqlite::Result<bool> {
+    let existing: Option<i64> = conn
+        .query_row(
+            "SELECT id FROM topics WHERE id = ?1",
+            params![id],
+            |row| row.get(0),
+        )
+        .optional()?;
+
+    if existing.is_some() {
+        return Ok(false);
+    }
+
+    let row: Option<DeletedTopic> = conn
+        .query_row(
+            "SELECT id, name, created_at, deleted_at FROM deleted_topics WHERE id = ?1",
+            params![id],
+            |row| {
+                Ok(DeletedTopic {
+                    id: row.get(0)?,
+                    name: row.get(1)?,
+                    created_at: row.get(2)?,
+                    deleted_at: row.get(3)?,
+                })
+            },
+        )
+        .optional()?;
+
+    let row = match row {
+        Some(row) => row,
+        None => return Ok(false),
+    };
+
+    conn.execute(
+        "INSERT INTO topics (id, name, created_at) VALUES (?1, ?2, ?3)",
+        params![row.id, row.name, row.created_at],
+    )?;
+
+    conn.execute(
+        "DELETE FROM deleted_topics WHERE id = ?1",
+        params![row.id],
+    )?;
+
+    Ok(true)
+}
+
+/// Permanently removes a topic from the topic bin. Cannot be undone.
+///
+/// Returns true when a bin entry was actually deleted.
+pub fn delete_topic_from_bin(conn: &Connection, id: i64) -> rusqlite::Result<bool> {
+    let affected = conn.execute(
+        "DELETE FROM deleted_topics WHERE id = ?1",
+        params![id],
+    )?;
+
+    Ok(affected > 0)
+}
+
+/// Deletes every topic-bin entry older than 30 days. Returns the number removed.
+pub fn purge_expired_deleted_topics(conn: &Connection) -> rusqlite::Result<usize> {
+    conn.execute(
+        "DELETE FROM deleted_topics
+         WHERE deleted_at < datetime('now', '-30 days')",
+        [],
+    )
+}
+
 /// Stores a team's best result on a level.
 ///
 /// The stored result is only replaced when the new run is genuinely better:
@@ -639,6 +860,7 @@ mod tests {
             correct_answer: serde_json::json!(0),
             accepted_answers: vec![],
             explanation: "because".to_string(),
+            topic_id: None,
         }
     }
 
@@ -653,6 +875,7 @@ mod tests {
             correct_answer: serde_json::json!("Phishing"),
             accepted_answers: vec!["phishing".into()],
             explanation: "".to_string(),
+            topic_id: None,
         }
     }
 
@@ -1304,5 +1527,209 @@ mod tests {
             .map(|row| format!("{}:{}", row.name, row.level))
             .collect();
         assert_eq!(names, vec!["Alpha:normal".to_string()]);
+    }
+
+    /* ===================== Topics ===================== */
+
+    #[test]
+    fn lists_topics_ordered_by_name() {
+        let conn = temp_db();
+        add_topic(&conn, "Zebra").unwrap();
+        add_topic(&conn, "Alpha").unwrap();
+        add_topic(&conn, "Meadow").unwrap();
+
+        let topics = list_topics(&conn).unwrap();
+        assert_eq!(topics.len(), 3);
+        assert_eq!(topics[0].name, "Alpha");
+        assert_eq!(topics[1].name, "Meadow");
+        assert_eq!(topics[2].name, "Zebra");
+    }
+
+    #[test]
+    fn get_topics_with_counts_reports_question_counts() {
+        let conn = temp_db();
+        let history = add_topic(&conn, "History").unwrap();
+        let coding = add_topic(&conn, "Coding").unwrap();
+
+        // Insert questions into each topic.
+        insert_question(
+            &conn,
+            "imported",
+            &Question {
+                id: 0,
+                source: "imported".into(),
+                qtype: "multiple-choice".into(),
+                difficulty: "normal".into(),
+                text: "H1?".into(),
+                options: Some(vec!["A".into(), "B".into()]),
+                correct_answer: serde_json::json!(0),
+                accepted_answers: vec![],
+                explanation: "".into(),
+                topic_id: Some(history.id),
+            },
+        )
+        .unwrap();
+        insert_question(
+            &conn,
+            "imported",
+            &Question {
+                id: 0,
+                source: "imported".into(),
+                qtype: "scramble".into(),
+                difficulty: "hard".into(),
+                text: "H2?".into(),
+                options: None,
+                correct_answer: serde_json::json!("Answer"),
+                accepted_answers: vec!["answer".into()],
+                explanation: "".into(),
+                topic_id: Some(history.id),
+            },
+        )
+        .unwrap();
+        insert_question(
+            &conn,
+            "imported",
+            &Question {
+                id: 0,
+                source: "imported".into(),
+                qtype: "multiple-choice".into(),
+                difficulty: "easy".into(),
+                text: "C1?".into(),
+                options: Some(vec!["A".into(), "B".into()]),
+                correct_answer: serde_json::json!(0),
+                accepted_answers: vec![],
+                explanation: "".into(),
+                topic_id: Some(coding.id),
+            },
+        )
+        .unwrap();
+
+        let counts = get_topics_with_counts(&conn).unwrap();
+        assert_eq!(counts.len(), 2);
+
+        let history_entry = counts.iter().find(|(t, _)| t.name == "History").unwrap();
+        assert_eq!(history_entry.1, 2);
+
+        let coding_entry = counts.iter().find(|(t, _)| t.name == "Coding").unwrap();
+        assert_eq!(coding_entry.1, 1);
+    }
+
+    #[test]
+    fn update_topic_renames() {
+        let conn = temp_db();
+        let topic = add_topic(&conn, "Old Name").unwrap();
+
+        let updated = update_topic(&conn, topic.id, "New Name").unwrap();
+        assert!(updated);
+
+        let topics = list_topics(&conn).unwrap();
+        assert_eq!(topics.len(), 1);
+        assert_eq!(topics[0].name, "New Name");
+    }
+
+    #[test]
+    fn delete_topic_moves_to_bin_and_nullifies_topic_id() {
+        let conn = temp_db();
+        let topic = add_topic(&conn, "To Delete").unwrap();
+
+        insert_question(
+            &conn,
+            "imported",
+            &Question {
+                id: 0,
+                source: "imported".into(),
+                qtype: "multiple-choice".into(),
+                difficulty: "normal".into(),
+                text: "Q1?".into(),
+                options: Some(vec!["A".into(), "B".into()]),
+                correct_answer: serde_json::json!(0),
+                accepted_answers: vec![],
+                explanation: "".into(),
+                topic_id: Some(topic.id),
+            },
+        )
+        .unwrap();
+
+        let deleted = delete_topic(&conn, topic.id).unwrap();
+        assert!(deleted);
+
+        // The topic is gone from the active list.
+        assert!(list_topics(&conn).unwrap().is_empty());
+
+        // The topic is in the bin.
+        let bin = list_deleted_topics(&conn).unwrap();
+        assert_eq!(bin.len(), 1);
+        assert_eq!(bin[0].name, "To Delete");
+        assert!(bin[0].deleted_at.contains(' '));
+
+        // The question's topic_id is nullified (question stays uncategorized).
+        let all = list_all(&conn).unwrap();
+        assert_eq!(all.len(), 1);
+        assert_eq!(all[0].topic_id, None);
+    }
+
+    #[test]
+    fn delete_nonexistent_topic_is_noop() {
+        let conn = temp_db();
+        let deleted = delete_topic(&conn, 999).unwrap();
+        assert!(!deleted);
+    }
+
+    #[test]
+    fn recover_topic_from_bin_restores() {
+        let conn = temp_db();
+        let topic = add_topic(&conn, "Recover Me").unwrap();
+        delete_topic(&conn, topic.id).unwrap();
+
+        let restored = recover_topic_from_bin(&conn, topic.id).unwrap();
+        assert!(restored);
+
+        let topics = list_topics(&conn).unwrap();
+        assert_eq!(topics.len(), 1);
+        assert_eq!(topics[0].name, "Recover Me");
+        assert!(list_deleted_topics(&conn).unwrap().is_empty());
+    }
+
+    #[test]
+    fn delete_topic_from_bin_removes_permanently() {
+        let conn = temp_db();
+        let topic = add_topic(&conn, "Permanent").unwrap();
+        delete_topic(&conn, topic.id).unwrap();
+
+        let deleted = delete_topic_from_bin(&conn, topic.id).unwrap();
+        assert!(deleted);
+        assert!(list_deleted_topics(&conn).unwrap().is_empty());
+
+        // A second call finds nothing.
+        assert!(!delete_topic_from_bin(&conn, topic.id).unwrap());
+    }
+
+    #[test]
+    fn purge_expired_deleted_topics_drops_old_rows_only() {
+        let conn = temp_db();
+        add_topic(&conn, "Fresh").unwrap();
+        add_topic(&conn, "Stale").unwrap();
+        let fresh = list_topics(&conn).unwrap()[0].id;
+        let stale = list_topics(&conn).unwrap()[1].id;
+        delete_topic(&conn, fresh).unwrap();
+        delete_topic(&conn, stale).unwrap();
+
+        // Age the stale entry past the 30-day window.
+        conn.execute(
+            "UPDATE deleted_topics SET deleted_at = datetime('now', '-31 days')
+             WHERE name = 'Stale'",
+            [],
+        )
+        .unwrap();
+
+        let removed = purge_expired_deleted_topics(&conn).unwrap();
+        assert_eq!(removed, 1, "only the stale entry is purged");
+
+        let names: Vec<String> = list_deleted_topics(&conn)
+            .unwrap()
+            .into_iter()
+            .map(|row| row.name)
+            .collect();
+        assert_eq!(names, vec!["Fresh".to_string()]);
     }
 }

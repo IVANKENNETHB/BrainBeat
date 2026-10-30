@@ -99,6 +99,11 @@ class QuizApp {
     this.bgmVolume = 0.8;
     this.bgmUnlockArmed = false;
 
+    // Topics organize questions and teams independently of levels.
+    this.topics = [];
+    this.activeTopicId = null;
+    this.topicsById = new Map();
+
     // In-flight confirmation modal resolver, if any.
     this.confirmResolver = null;
     this.confirmReturnFocus = null;
@@ -110,6 +115,9 @@ class QuizApp {
     // True while the recycle bin modal is open (Escape closes it).
     this.recycleBinOpen = false;
     this.recycleBinReturnFocus = null;
+    // True while the topic bin modal is open (Escape closes it).
+    this.topicBinOpen = false;
+    this.topicBinReturnFocus = null;
 
     this.timer = new Timer({
       duration: 0,
@@ -164,6 +172,12 @@ class QuizApp {
       recycleBinMessage: byId("recycle-bin-message"),
       recycleBinClose: byId("recycle-bin-close"),
       recycleBinPurge: byId("recycle-bin-purge"),
+      // Topics bin modal
+      topicBinOverlay: byId("topic-bin-modal"),
+      topicBinList: byId("topic-bin-list"),
+      topicBinMessage: byId("topic-bin-message"),
+      topicBinClose: byId("topic-bin-close"),
+      topicBinPurge: byId("topic-bin-purge"),
       shuffleChoices: byId("shuffle-choices"),
       soundToggle: byId("sound-toggle"),
       bgmToggle: byId("bgm-toggle"),
@@ -1524,6 +1538,41 @@ class QuizApp {
     return Levels.getPool(this.questions, levelKey);
   }
 
+  /** Active topic id (null when no topic is selected). */
+  getActiveTopicId() {
+    return this.activeTopicId;
+  }
+
+  /** Topic object by id, or null when not found. */
+  getTopicConfig(topicId) {
+    if (topicId == null) {
+      return null;
+    }
+    return this.topicsById.get(Number(topicId)) || null;
+  }
+
+  /** Questions belonging to a topic. When topicId is null, returns uncategorized questions (topic_id === null). */
+  getTopicPool(topicId = this.getActiveTopicId()) {
+    if (topicId == null) {
+      return this.questions.filter((q) => q.topic_id == null);
+    }
+    return this.questions.filter((q) => q.topic_id === topicId);
+  }
+
+  /**
+   * Questions the next round may use. When a topic is active, only questions
+   * from that topic are eligible; otherwise the level pool is used.
+   *
+   * @returns {Array}
+   */
+  getActivePool() {
+    const topicId = this.getActiveTopicId();
+    if (topicId != null) {
+      return this.getTopicPool(topicId);
+    }
+    return Levels.getPool(this.questions, this.getActiveLevelKey());
+  }
+
   /**
    * Number of questions selected for a level. Each level remembers its
    * own count, so switching levels never changes the other levels' size.
@@ -1606,6 +1655,63 @@ class QuizApp {
    */
   get teamsDraft() {
     return this.getTeamDrafts();
+  }
+
+  /* ===================== Topic setup ===================== */
+
+  /**
+   * The scoreboard of a topic. Every topic keeps its own teams and its own
+   * standings.
+   *
+   * @param {number|string} [topicId]
+   * @returns {Scoreboard}
+   */
+  getTopicScoreboard(topicId = this.getActiveTopicId()) {
+    if (topicId == null) {
+      return this.getScoreboard(this.getActiveLevelKey());
+    }
+    const key = `topic:${String(topicId)}`;
+
+    if (!this.scoreboards.has(key)) {
+      this.scoreboards.set(key, new Scoreboard());
+    }
+
+    return this.scoreboards.get(key);
+  }
+
+  /**
+   * The scoreboard of the topic that is being played.
+   * @returns {Scoreboard}
+   */
+  get topicScoreboard() {
+    return this.getTopicScoreboard(this.getActiveTopicId());
+  }
+
+  /**
+   * The team list of a topic.
+   *
+   * @param {number|string} [topicId]
+   * @returns {Array<string>}
+   */
+  getTopicTeamDrafts(topicId = this.getActiveTopicId()) {
+    if (topicId == null) {
+      return this.getTeamDrafts(this.getActiveLevelKey());
+    }
+    const key = `topic:${String(topicId)}`;
+
+    if (!this.teamDrafts.has(key)) {
+      this.teamDrafts.set(key, []);
+    }
+
+    return this.teamDrafts.get(key);
+  }
+
+  /**
+   * The team list of the topic that is being played.
+   * @returns {Array<string>}
+   */
+  get topicsTeamDraft() {
+    return this.getTopicTeamDrafts(this.getActiveTopicId());
   }
 
   /**
